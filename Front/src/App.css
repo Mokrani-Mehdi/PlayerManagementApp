@@ -932,21 +932,78 @@ textarea.field-input { resize: vertical; font-family: inherit; min-height: 60px;
 .handball-calendar .react-datepicker__year-dropdown-container {
   color: white !important;
 }
+
+/* Fixed: Year dropdown - visible text */
 .handball-calendar .react-datepicker__year-dropdown {
   border: 1px solid var(--line) !important;
   border-radius: 8px !important;
   background: white !important;
   padding: 8px 0 !important;
+  box-shadow: var(--shadow-lg) !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
 }
 .handball-calendar .react-datepicker__year-option {
-  padding: 4px 16px !important;
+  padding: 6px 16px !important;
   font-size: 13px !important;
+  color: var(--ink) !important;
+  background: white !important;
+  cursor: pointer !important;
+  transition: background 0.15s !important;
 }
 .handball-calendar .react-datepicker__year-option:hover {
   background: var(--primary-subtle) !important;
+  color: var(--primary) !important;
 }
 .handball-calendar .react-datepicker__year-option--selected_year {
   background: var(--primary) !important;
+  color: white !important;
+}
+.handball-calendar .react-datepicker__year-option--selected_year:hover {
+  background: var(--primary-dark) !important;
+}
+
+/* Fixed: Month dropdown - visible text */
+.handball-calendar .react-datepicker__month-dropdown {
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  background: white !important;
+  padding: 8px 0 !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+.handball-calendar .react-datepicker__month-option {
+  padding: 6px 16px !important;
+  font-size: 13px !important;
+  color: var(--ink) !important;
+  background: white !important;
+  cursor: pointer !important;
+  transition: background 0.15s !important;
+}
+.handball-calendar .react-datepicker__month-option:hover {
+  background: var(--primary-subtle) !important;
+  color: var(--primary) !important;
+}
+.handball-calendar .react-datepicker__month-option--selected_month {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+/* Fix for dropdown toggle buttons */
+.handball-calendar .react-datepicker__year-read-view,
+.handball-calendar .react-datepicker__month-read-view {
+  color: white !important;
+}
+.handball-calendar .react-datepicker__year-read-view:hover,
+.handball-calendar .react-datepicker__month-read-view:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+}
+.handball-calendar .react-datepicker__year-read-view--down-arrow,
+.handball-calendar .react-datepicker__month-read-view--down-arrow {
+  border-color: white !important;
+}
+.handball-calendar .react-datepicker__year-read-view--selected-year,
+.handball-calendar .react-datepicker__month-read-view--selected-month {
   color: white !important;
 }
 

@@ -149,7 +149,7 @@ const uid = (): string => Math.random().toString(36).slice(2, 10) + Date.now().t
 
 const API_BASE: string =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE) ||
-  "http://127.0.0.1:8000";
+  "https://playermanagementapp.onrender.com";
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -432,19 +432,21 @@ function PlayerDrawer({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"info" | "injuries">("info");
+  // Custom DatePicker input component
   const CustomDateInput = React.forwardRef<HTMLInputElement, any>(
-    ({ value, onClick, onChange, placeholder }, ref) => (
+    ({ value, onClick, placeholder }, ref) => (
       <input
         ref={ref}
-        value={value}
+        type="text"
+        value={value || ""}
         onClick={onClick}
-        onChange={onChange}
         placeholder={placeholder}
         className="field-input date-input"
         readOnly
       />
     )
   );
+  CustomDateInput.displayName = "CustomDateInput";
   useEffect(() => {
     setForm(player ? { ...player } : emptyPlayer());
     setEditing(mode === "create");
@@ -563,7 +565,13 @@ function PlayerDrawer({
                   <Field label="Date de naissance" required>
                     <DatePicker
                       selected={form.dob ? new Date(form.dob) : null}
-                      onChange={(date: Date | null) => setField("dob", date ? date.toISOString().split("T")[0] : "")}
+                      onChange={(date: Date | null) => {
+                        if (date) {
+                          setField("dob", date.toISOString().split("T")[0]);
+                        } else {
+                          setField("dob", "");
+                        }
+                      }}
                       dateFormat="dd/MM/yyyy"
                       customInput={<CustomDateInput />}
                       placeholderText="JJ/MM/AAAA"
