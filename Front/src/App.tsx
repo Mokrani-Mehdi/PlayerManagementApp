@@ -584,6 +584,7 @@ function PlayerDrawer({
                       monthClassName={() => "handball-month"}
                       weekDayClassName={() => "handball-weekday"}
                       popperClassName="handball-popper"
+                      popperProps={{ strategy: "fixed" }}
                     />
                   </Field>
                   <Field label="Taille (cm)"><TextInput type="number" value={form.heightCm} onChange={(e) => setField("heightCm", e.target.value)} /></Field>
@@ -693,6 +694,7 @@ function PlayerDrawer({
                       calendarClassName="handball-calendar"
                       dayClassName={() => "handball-day"}
                       popperClassName="handball-popper"
+                      popperProps={{ strategy: "fixed" }}
                     />
                   </Field>
                   <Field label="Sévérité">

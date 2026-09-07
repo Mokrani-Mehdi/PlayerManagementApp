@@ -1028,3 +1028,6 @@ textarea.field-input { resize: vertical; font-family: inherit; min-height: 60px;
 .drawer-panel::-webkit-scrollbar-thumb:hover {
   background: var(--ink-faint);
 }
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}

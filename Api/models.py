@@ -28,7 +28,7 @@ class PlayerIn(BaseModel):
     status: Status = "Disponible"
     height_cm: int = 0
     parent_phone: str = ""
-    phone_number: str = ""
+    phone_number: int = 0       
     position: Position = "Ailier Droit"
     hand: Hand = "Droite"
     notes: str = ""
