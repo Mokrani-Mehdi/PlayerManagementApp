@@ -1,5 +1,6 @@
 // App.tsx
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import DatePicker from "@/components/modern-ui/date-picker";
 import {
   Plus, X, Settings2, Trash2, Pencil,
   Ruler, Cake, Phone, HandMetal, ShieldAlert, Calendar, Clock,
@@ -8,7 +9,7 @@ import {
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip,
 } from "recharts";
-import DatePicker from "react-datepicker";
+//import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./App.css";
 
@@ -147,6 +148,12 @@ const DEFAULT_DIVISIONS: DivisionConfig[] = [
 
 const uid = (): string => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
+function toISODate(d: Date | undefined): string {
+  return d ? d.toISOString().split("T")[0] : "";
+}
+function fromISODate(s: string): Date | undefined {
+  return s ? new Date(s) : undefined;
+}
 const API_BASE: string =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE) ||
   "https://playermanagementapp.onrender.com";
@@ -564,27 +571,10 @@ function PlayerDrawer({
                   <Field label="Numéro" required><TextInput type="number" value={form.number} onChange={(e) => setField("number", e.target.value)} /></Field>
                   <Field label="Date de naissance" required>
                     <DatePicker
-                      selected={form.dob ? new Date(form.dob) : null}
-                      onChange={(date: Date | null) => {
-                        if (date) {
-                          setField("dob", date.toISOString().split("T")[0]);
-                        } else {
-                          setField("dob", "");
-                        }
-                      }}
-                      dateFormat="dd/MM/yyyy"
-                      customInput={<CustomDateInput />}
-                      placeholderText="JJ/MM/AAAA"
-                      maxDate={new Date()}
-                      showYearDropdown
-                      scrollableYearDropdown
-                      yearDropdownItemNumber={100}
-                      calendarClassName="handball-calendar"
-                      dayClassName={() => "handball-day"}
-                      monthClassName={() => "handball-month"}
-                      weekDayClassName={() => "handball-weekday"}
-                      popperClassName="handball-popper"
-                      popperProps={{ strategy: "fixed" }}
+                      date={fromISODate(form.dob)}
+                      setDate={(d) => setField("dob", toISODate(d))}
+                      placeholder="JJ/MM/AAAA"
+                      className="field-input date-input"
                     />
                   </Field>
                   <Field label="Taille (cm)"><TextInput type="number" value={form.heightCm} onChange={(e) => setField("heightCm", e.target.value)} /></Field>
@@ -685,16 +675,10 @@ function PlayerDrawer({
                 <div className="injury-form-row">
                   <Field label="Date">
                     <DatePicker
-                      selected={newInjury.date ? new Date(newInjury.date) : null}
-                      onChange={(date: Date | null) => setNewInjury((s) => ({ ...s, date: date ? date.toISOString().split("T")[0] : "" }))}
-                      dateFormat="dd/MM/yyyy"
-                      customInput={<CustomDateInput />}
-                      placeholderText="JJ/MM/AAAA"
-                      maxDate={new Date()}
-                      calendarClassName="handball-calendar"
-                      dayClassName={() => "handball-day"}
-                      popperClassName="handball-popper"
-                      popperProps={{ strategy: "fixed" }}
+                      date={fromISODate(newInjury.date)}
+                      setDate={(d) => setNewInjury((s) => ({ ...s, date: toISODate(d) }))}
+                      placeholder="JJ/MM/AAAA"
+                      className="field-input date-input"
                     />
                   </Field>
                   <Field label="Sévérité">
