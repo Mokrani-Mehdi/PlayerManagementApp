@@ -27,11 +27,11 @@ class PlayerIn(BaseModel):
     dob: date
     status: Status = "Disponible"
     height_cm: int = 0
-    parent_phone: str = ""
-    phone_number: str = ""     
+    parent_phone: Optional[str] = None
+    phone_number: Optional[str] = None
     position: Position = "Ailier Droit"
     hand: Hand = "Droite"
-    notes: str = ""
+    notes: Optional[str] = None
 
 
 class PlayerOut(PlayerIn):

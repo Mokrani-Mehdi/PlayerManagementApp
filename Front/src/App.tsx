@@ -189,11 +189,11 @@ function playerFromApi(p: ApiPlayer): Player {
     dob: p.dob,
     status: p.status,
     heightCm: p.height_cm,
-    parentPhone: p.parent_phone,
-    phoneNumber: p.phone_number,
+    parentPhone: p.parent_phone ?? "",
+    phoneNumber: p.phone_number ?? "",
     position: p.position,
     hand: p.hand,
-    notes: p.notes,
+    notes: p.notes ?? "",
     injuries: (p.injuries || []).map(injuryFromApi),
   };
 }
