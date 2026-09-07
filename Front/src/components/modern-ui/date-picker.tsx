@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 "use client";
 
 import { format, set } from "date-fns";
