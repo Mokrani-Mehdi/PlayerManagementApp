@@ -1,9 +1,9 @@
 // App.tsx
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
-  Plus, X, SlidersHorizontal, Settings2, Trash2, Pencil,
+  Plus, X, Settings2, Trash2, Pencil,
   Ruler, Cake, Phone, HandMetal, ShieldAlert, Calendar, Clock,
-  User, Users, ChevronDown, ChevronUp, Search, Filter, SortAsc,
+  User, Users, ChevronDown, Search, Filter, SortAsc,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip,
@@ -115,13 +115,8 @@ interface ApiDivision {
 --------------------------------------------------------- */
 const PRIMARY = "#C41E24"; // Handball red
 const PRIMARY_DARK = "#9E151A";
-const PRIMARY_LIGHT = "#FEE8E8";
-const PAPER = "#FFFFFF";
-const PAPER_DIM = "#F8F6F4";
-const INK = "#1A1A1A";
+
 const LINE = "#E8E4E0";
-const AMBER = "#DD9A32";
-const INK_MUTED = "#6B6455";
 const INK_FAINT = "#8A8272";
 const DANGER = "#C41E24";
 const DANGER_BG = "#FEE8E8";
@@ -849,7 +844,7 @@ function SortSelector({
 export default function App() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [divisionConfig, setDivisionConfig] = useState<DivisionConfig[]>(DEFAULT_DIVISIONS);
-  const [loaded, setLoaded] = useState(false);
+  //const [loaded, setLoaded] = useState(false);
   const [connectionError, setConnectionError] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [drawerMode, setDrawerMode] = useState<DrawerMode>(null);
@@ -887,7 +882,7 @@ export default function App() {
       setPlayers(SAMPLE_PLAYERS);
       setDivisionConfig(DEFAULT_DIVISIONS);
     } finally {
-      setLoaded(true);
+      //setLoaded(true);
     }
   }, []);
 
