@@ -37,6 +37,9 @@ def list_players():
 
     for p in players:
         p["injuries"] = by_player.get(p["id"], [])
+        # Ensure phone_number is None if empty
+        if p.get("phone_number") == "" or p.get("phone_number") is None:
+            p["phone_number"] = None
     return players
 
 

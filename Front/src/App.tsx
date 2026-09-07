@@ -41,7 +41,7 @@ interface Player {
   status: Status;
   heightCm: number;
   parentPhone: string;
-  phoneNumber: number;
+  phoneNumber: string;
   position: Position;
   hand: Hand;
   notes: string;
@@ -95,7 +95,7 @@ interface ApiPlayer {
   status: Status;
   height_cm: number;
   parent_phone: string;
-  phone_number: number;
+  phone_number: string;
   position: Position;
   hand: Hand;
   notes: string;
@@ -173,7 +173,7 @@ function playerToApi(p: PlayerForm | Player): Omit<ApiPlayer, "id" | "injuries">
     status: p.status,
     height_cm: Number(p.heightCm) || 0,
     parent_phone: p.parentPhone || "",
-    phone_number: Number(p.phoneNumber) || 0,
+    phone_number: String(p.phoneNumber ?? "").trim(),
     position: p.position,
     hand: p.hand,
     notes: p.notes || "",
@@ -249,14 +249,14 @@ const SAMPLE_PLAYERS: Player[] = [
   {
     id: uid(), firstName: "Lina", lastName: "Bensalem", number: 7,
     dob: "2013-04-12", status: "Disponible", heightCm: 152,
-    parentPhone: "06 12 34 56 78", phoneNumber: 612345678,
+    parentPhone: "06 12 34 56 78", phoneNumber: "06 12 34 56 78",
     position: "Ailier Droit", hand: "Droite",
     notes: "", injuries: [],
   },
   {
     id: uid(), firstName: "Yanis", lastName: "Meziane", number: 4,
     dob: "2011-09-03", status: "Blessé", heightCm: 168,
-    parentPhone: "07 22 44 11 09", phoneNumber: 722441109,
+    parentPhone: "07 22 44 11 09", phoneNumber: "06 12 34 56 78",
     position: "Demi-centre", hand: "Gauche",
     notes: "",
     injuries: [
@@ -266,14 +266,14 @@ const SAMPLE_PLAYERS: Player[] = [
   {
     id: uid(), firstName: "Amel", lastName: "Cherif", number: 12,
     dob: "2009-01-30", status: "Disponible", heightCm: 175,
-    parentPhone: "06 65 43 21 00", phoneNumber: 665432100,
+    parentPhone: "06 65 43 21 00", phoneNumber: "06 12 34 56 78",
     position: "Pivot", hand: "Droite",
     notes: "", injuries: [],
   },
   {
     id: uid(), firstName: "Rayan", lastName: "Haddad", number: 1,
     dob: "2007-11-18", status: "En pause", heightCm: 181,
-    parentPhone: "05 55 66 77 88", phoneNumber: 555667788,
+    parentPhone: "05 55 66 77 88", phoneNumber: "06 12 34 56 78",
     position: "Gardien", hand: "Gauche",
     notes: "Pause pour examens.",
     injuries: [
