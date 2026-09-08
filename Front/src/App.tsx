@@ -61,11 +61,11 @@ interface DivisionConfig {
   maxYear: number | null;
 }
 
-interface PlayerForm extends Omit<Player, "id" | "number" | "heightCm" | "phoneNumber"> {
+interface PlayerForm extends Omit<Player, "id" | "number" | "heightCm"> {
   id: string | null;
   number: number | string;
   heightCm: number | string;
-  phoneNumber: number | string;
+  //phoneNumber: number | string;
 }
 
 interface NewInjuryForm {
@@ -149,10 +149,19 @@ const DEFAULT_DIVISIONS: DivisionConfig[] = [
 const uid = (): string => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
 function toISODate(d: Date | undefined): string {
-  return d ? d.toISOString().split("T")[0] : "";
+  if (!d) return "";
+  // Créer une date au format YYYY-MM-DD sans décalage de fuseau horaire
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
+
 function fromISODate(s: string): Date | undefined {
-  return s ? new Date(s) : undefined;
+  if (!s) return undefined;
+  // Parse la date au format YYYY-MM-DD en ignorant le fuseau horaire
+  const [year, month, day] = s.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }
 const API_BASE: string =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE) ||
@@ -180,11 +189,55 @@ function playerToApi(p: PlayerForm | Player): Omit<ApiPlayer, "id" | "injuries">
     status: p.status,
     height_cm: Number(p.heightCm) || 0,
     parent_phone: p.parentPhone || "",
-    phone_number: String(p.phoneNumber ?? "").trim(),
+    phone_number: (p.phoneNumber || "").trim(),
     position: p.position,
     hand: p.hand,
     notes: p.notes || "",
   };
+}
+
+function sanitizePhoneInput(raw: string): string {
+  // keep only digits, allow a leading + for international numbers
+  const hasPlus = raw.trim().startsWith("+");
+  const digits = raw.replace(/\D/g, "");
+  return hasPlus ? `+${digits}` : digits;
+}
+function ConfirmDialog({
+  title,
+  message,
+  confirmLabel = "Supprimer",
+  onConfirm,
+  onCancel,
+}: {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="modal-overlay" onClick={onCancel}>
+      <div className="modal-panel modal-panel-sm" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header-row">
+          <h2 className="modal-title">{title}</h2>
+          <button onClick={onCancel} className="icon-btn-ghost"><X size={20} color={INK_FAINT} /></button>
+        </div>
+        <p className="modal-desc">{message}</p>
+        <div className="form-actions">
+          <button onClick={onCancel} className="btn btn-outline btn-flex">Annuler</button>
+          <button onClick={onConfirm} className="btn btn-danger btn-flex">{confirmLabel}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+function isFutureDate(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const d = fromISODate(dateStr);
+  if (!d) return false;
+  const today = new Date();
+  today.setHours(23, 59, 59, 999); // allow today itself
+  return d.getTime() > today.getTime();
 }
 
 function playerFromApi(p: ApiPlayer): Player {
@@ -433,6 +486,8 @@ function PlayerDrawer({
 }: PlayerDrawerProps) {
   const [form, setForm] = useState<PlayerForm>(player ? { ...player } : emptyPlayer());
   const [editing, setEditing] = useState(mode === "create");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const [newInjury, setNewInjury] = useState<NewInjuryForm>({
     description: "", date: new Date().toISOString().split("T")[0], severity: "Légère", durationWeeks: ""
   });
@@ -453,6 +508,23 @@ function PlayerDrawer({
       />
     )
   );
+  <button
+    onClick={() => setConfirmDelete(true)}
+    className="text-link-danger"
+  >
+    <Trash2 size={14} /> Supprimer ce joueur
+  </button>
+
+  {
+    confirmDelete && (
+      <ConfirmDialog
+        title="Supprimer ce joueur ?"
+        message={`Cette action est irréversible. ${form.firstName} ${form.lastName} sera définitivement supprimé(e) du dossier.`}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={() => { setConfirmDelete(false); form.id && onDelete(form.id); }}
+      />
+    )
+  }
   CustomDateInput.displayName = "CustomDateInput";
   useEffect(() => {
     setForm(player ? { ...player } : emptyPlayer());
@@ -465,6 +537,10 @@ function PlayerDrawer({
 
   const save = async () => {
     if (!form.firstName.trim() || !form.lastName.trim() || !form.dob) return;
+    if (isFutureDate(form.dob)) {
+      setError("La date de naissance ne peut pas être dans le futur.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -472,7 +548,7 @@ function PlayerDrawer({
         ...form,
         number: Number(form.number) || 0,
         heightCm: Number(form.heightCm) || 0,
-        phoneNumber: Number(form.phoneNumber) || 0,
+        phoneNumber: form.phoneNumber.trim(),
       });
       setEditing(false);
     } catch {
@@ -484,10 +560,15 @@ function PlayerDrawer({
 
   const addInjury = async () => {
     if (!newInjury.description.trim() || !newInjury.date || !form.id) return;
+    if (isFutureDate(newInjury.date)) {
+      setError("La date de la blessure ne peut pas être dans le futur.");
+      return;
+    }
     try {
       const created = await onAddInjury(form.id, newInjury);
       setForm((f) => ({ ...f, injuries: [created, ...(f.injuries || [])] }));
       setNewInjury({ description: "", date: new Date().toISOString().split("T")[0], severity: "Légère", durationWeeks: "" });
+      setError("");
     } catch {
       setError("Impossible d'ajouter la blessure. Vérifiez la connexion à l'API.");
     }
@@ -578,8 +659,17 @@ function PlayerDrawer({
                     />
                   </Field>
                   <Field label="Taille (cm)"><TextInput type="number" value={form.heightCm} onChange={(e) => setField("heightCm", e.target.value)} /></Field>
-                  <Field label="Téléphone"><TextInput type="number" value={form.phoneNumber} onChange={(e) => setField("phoneNumber", e.target.value)} placeholder="0612345678" /></Field>
-                  <Field label="Tél. parent"><TextInput value={form.parentPhone} onChange={(e) => setField("parentPhone", e.target.value)} placeholder="06 12 34 56 78" /></Field>
+                  <Field label="Téléphone">
+                    <TextInput
+                      type="text"
+                      inputMode="numeric"
+                      value={form.phoneNumber}
+                      onChange={(e) => setField("phoneNumber", sanitizePhoneInput(e.target.value))}
+                      placeholder="06 12 34 56 78"
+                    />
+                  </Field>                  
+                  <Field label="Tél. parent">
+                    <TextInput value={form.parentPhone} onChange={(e) => setField("parentPhone", e.target.value)} placeholder="06 12 34 56 78" /></Field>
                   <Field label="Main dominante">
                     <Select value={form.hand} onChange={(e) => setField("hand", e.target.value as Hand)}>
                       {HANDS.map((h) => <option key={h}>{h}</option>)}
@@ -702,11 +792,20 @@ function PlayerDrawer({
               </div>
 
               <button
-                onClick={() => form.id && onDelete(form.id)}
+                onClick={() => setConfirmDelete(true)}
                 className="text-link-danger"
               >
                 <Trash2 size={14} /> Supprimer ce joueur
               </button>
+
+              {confirmDelete && (
+                <ConfirmDialog
+                  title="Supprimer ce joueur ?"
+                  message={`Cette action est irréversible. ${form.firstName} ${form.lastName} sera définitivement supprimé(e) du dossier.`}
+                  onCancel={() => setConfirmDelete(false)}
+                  onConfirm={() => { setConfirmDelete(false); form.id && onDelete(form.id); }}
+                />
+              )}
             </div>
           )}
         </div>
@@ -1068,7 +1167,7 @@ export default function App() {
 
               <FilterGroup title="Main dominante">
                 <Select value={fHand} onChange={(e) => setFHand(e.target.value as Hand | "")}>
-                  <option value="">Les deux</option>
+                  <option value="">All</option>
                   {HANDS.map((h) => <option key={h}>{h}</option>)}
                 </Select>
               </FilterGroup>
