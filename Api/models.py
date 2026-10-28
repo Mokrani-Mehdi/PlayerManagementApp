@@ -49,3 +49,81 @@ class DivisionRow(BaseModel):
 
 class DivisionsReplace(BaseModel):
     divisions: List[DivisionRow]
+
+
+# ---------------------------------------------------------
+# Trainings
+# ---------------------------------------------------------
+TrainingAttendanceStatus = str  # "Présent" | "Absent" | "Excusé" | "Blessé"
+
+
+class TrainingAttendanceIn(BaseModel):
+    player_id: str
+    status: TrainingAttendanceStatus = "Présent"
+    absence_reason: str = ""
+    shots_made: int = 0
+    shots_attempted: int = 0
+    pass_pct: Optional[float] = None
+    rating: Optional[float] = None
+
+
+class TrainingAttendanceOut(TrainingAttendanceIn):
+    id: str
+    training_id: str
+
+
+class TrainingIn(BaseModel):
+    date: date
+    theme: str
+    division: str = ""
+    location: str = ""
+    notes: str = ""
+
+
+class TrainingOut(TrainingIn):
+    id: str
+    attendance: List[TrainingAttendanceOut] = Field(default_factory=list)
+
+
+class TrainingAttendanceBulk(BaseModel):
+    rows: List[TrainingAttendanceIn]
+
+
+# ---------------------------------------------------------
+# Matches
+# ---------------------------------------------------------
+MatchPlayerStatus = str  # "A joué" | "Banc" | "Blessé" | "Non convoqué"
+
+
+class MatchPlayerIn(BaseModel):
+    player_id: str
+    status: MatchPlayerStatus = "A joué"
+    detail: str = ""
+    minutes: int = 0
+    goals: int = 0
+    saves: int = 0
+    two_min: int = 0
+
+
+class MatchPlayerOut(MatchPlayerIn):
+    id: str
+    match_id: str
+
+
+class MatchIn(BaseModel):
+    date: date
+    opponent: str
+    home_away: str = "Domicile"
+    competition: str = ""
+    score_for: int = 0
+    score_against: int = 0
+    notes: str = ""
+
+
+class MatchOut(MatchIn):
+    id: str
+    players: List[MatchPlayerOut] = Field(default_factory=list)
+
+
+class MatchPlayerBulk(BaseModel):
+    rows: List[MatchPlayerIn]
